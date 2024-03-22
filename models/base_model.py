@@ -3,26 +3,33 @@
 
 import uuid
 from datetime import datetime
+import models
 
 
 class BaseModel:
     """The base model class for other classes"""
 
     def __init__(self, *args, **kwargs):
-        if kwargs:
-            for key, value in kwargs.items():
-                if key != '__class__':
-                    if key in ('created_at', 'updateed_at'):
-                        value = datetime.fromisoformat(value)
-                    setattr(self, key, value)
-        else:
+        """Initialise public instance attributes"""
+        if not kwargs:
             self.id = str(uuid.uuid4())
             self.created_at = datetime.now()
             self.updated_at = datetime.now()
+            models.storage.new(self)
+        else:
+            kwargs["created_at"] = datetime.strptime(
+                kwargs["created_at"], "%Y-%m-%dT%H:%M:%S.%f"
+            )
+            kwargs["updated_at"] = datetime.strptime(
+                kwargs["updated_at"], "%Y-%m-%dT%H:%M:%S.%f"
+            )
+            for key, value in kwargs.items():
+                if "__class__" not in key:
+                    setattr(self, key, value)
 
     def __str__(self):
         """String representation of class"""
-        return "[{}] ({}) {}".format(self.__class__.__name__, self.id, self.__dict__)
+        return f"[{self.__class__.__name__}] ({self.id}) {self.__dict__}"
 
     def save(self):
         """
@@ -30,6 +37,7 @@ class BaseModel:
         with the current datetime
         """
         self.updated_at = datetime.now()
+        models.storage.save()
 
     def to_dict(self):
         """
