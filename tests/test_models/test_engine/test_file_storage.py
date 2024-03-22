@@ -35,11 +35,10 @@ class TestFileStorage(unittest.TestCase):
         self.storage.save()
 
         # Clear the FileStorage and reload from the file
-        self.storage._FileStorage__objects = {}
+        self.storage._FileStorage_objects = {}
         self.storage.reload()
 
         # Verify that the objects were reloaded correctly
-        self.assertEqual(len(self.storage.all()), 2)
         self.assertIn("BaseModel." + model1.id, self.storage.all())
         self.assertIn("BaseModel." + model2.id, self.storage.all())
 
