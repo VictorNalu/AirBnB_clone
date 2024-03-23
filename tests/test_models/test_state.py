@@ -45,7 +45,9 @@ class TestState(unittest.TestCase):
         """
         Test the string representation of the State instance.
         """
-        expected_str = "[State] ({}) {}".format(self.state.id, self.state.__dict__)
+        expected_str = "[State] ({}) {}".format(
+            self.state.id, self.state.__dict__
+        )
         self.assertEqual(str(self.state), expected_str)
 
     def test_to_dict_method(self):
