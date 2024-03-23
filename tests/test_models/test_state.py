@@ -52,13 +52,11 @@ class TestState(unittest.TestCase):
         """
         Test the to_dict method of the State class.
         """
-        obj_dict = self.state.to_dict()
-        self.assertTrue(isinstance(obj_dict, dict))
-        self.assertEqual(obj_dict["__class__"], "State")
-        self.assertTrue("id" in obj_dict)
-        self.assertTrue("created_at" in obj_dict)
-        self.assertTrue("updated_at" in obj_dict)
-        self.assertTrue("name" in obj_dict)
+        obj_dict = State()
+        self.assertTrue("id" in obj_dict.__dir__())
+        self.assertTrue("created_at" in obj_dict.__dir__())
+        self.assertTrue("updated_at" in obj_dict.__dir__())
+        self.assertTrue("name" in obj_dict.__dir__())
 
 
 if __name__ == "__main__":

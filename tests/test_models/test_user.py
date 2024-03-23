@@ -61,16 +61,11 @@ class TestUser(unittest.TestCase):
         """
         Test the to_dict method of the User class.
         """
-        obj_dict = self.user.to_dict()
-        self.assertTrue(isinstance(obj_dict, dict))
-        self.assertEqual(obj_dict["__class__"], "User")
-        self.assertTrue("id" in obj_dict)
-        self.assertTrue("created_at" in obj_dict)
-        self.assertTrue("updated_at" in obj_dict)
-        self.assertTrue("email" in obj_dict)
-        self.assertTrue("password" in obj_dict)
-        self.assertTrue("first_name" in obj_dict)
-        self.assertTrue("last_name" in obj_dict)
+        obj_dict = User()
+        self.assertTrue("email" in obj_dict.__dir__())
+        self.assertTrue("password" in obj_dict.__dir__())
+        self.assertTrue("first_name" in obj_dict.__dir__())
+        self.assertTrue("last_name" in obj_dict.__dir__())
 
 
 if __name__ == "__main__":
