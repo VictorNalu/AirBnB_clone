@@ -9,5 +9,15 @@ from models.amenity import Amenity
 from models.city import City
 from models.review import Review
 
+classes = {
+    "User": User,
+    "BaseModel": BaseModel,
+    "Place": Place,
+    "State": State,
+    "City": City,
+    "Amenity": Amenity,
+    "Review": Review,
+}
+
 storage = FileStorage()
 storage.reload()

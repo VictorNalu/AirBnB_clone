@@ -2,13 +2,7 @@
 """fileStorage """
 import json
 import os
-from models.base_model import BaseModel
-from models.user import User
-from models.place import Place
-from models.state import State
-from models.city import City
-from models.amenity import Amenity
-from models.review import Review
+import models
 
 
 class FileStorage:
@@ -39,14 +33,12 @@ class FileStorage:
 
     def reload(self):
         """reload"""
-        if os.path.isfile(FileStorage.__file_path):
-            with open(FileStorage.__file_path, "r", encoding="utf-8") as file:
-                try:
-                    obj_dict = json.load(file)
-                    for key, value in obj_dict.items():
-                        class_name, obj_id = key.split(".")
-                        cls = eval(class_name)
-                        inst = cls(**value)
-                        FileStorage.__objects[key] = inst
-                except Exception:
-                    pass
+        try:
+            with open(FileStorage.__file_path, encoding="UTF8") as fd:
+                FileStorage.__objects = json.load(fd)
+            for key, val in FileStorage.__objects.items():
+                class_name = val["__class__"]
+                class_name = models.classes[class_name]
+                FileStorage.__objects[key] = class_name(**val)
+        except FileNotFoundError:
+            pass
