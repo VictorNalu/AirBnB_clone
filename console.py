@@ -17,9 +17,9 @@ class HBNBCommand(cmd.Cmd):
     """
     HBNBCommand console class
     """
+
     prompt = "(hbnb) "
-    valid_classes = ["BaseModel", "User", "Amenity",
-                     "Place", "Review", "State", "City"]
+    valid_classes = ["BaseModel", "User", "Amenity", "Place", "Review", "State", "City"]
 
     def emptyline(self):
         """
@@ -119,23 +119,6 @@ class HBNBCommand(cmd.Cmd):
         else:
             print("** no instance found **")
 
-    def do_all(self, arg):
-        """
-        Prints all instances of a class.
-        """
-        if not arg:
-            print([str(obj) for obj in storage.all().values()])
-            return
-
-        if arg not in self.valid_classes:
-            print("** class doesn't exist **")
-            return
-
-        objects = storage.all()
-        instances = [str(obj) for key, obj in objects.items()
-                     if key.startswith(arg + '.')]
-        print(instances)
-
     def do_update(self, arg):
         """
         Updates an instance based on the class name and
@@ -180,5 +163,5 @@ class HBNBCommand(cmd.Cmd):
         obj.save()
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     HBNBCommand().cmdloop()
