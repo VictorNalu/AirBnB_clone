@@ -1,16 +1,21 @@
 #!/usr/bin/python3
 """The console"""
-
 import cmd
-from models.user import User
-from models import storage
+import models
 
 
 class HBNBCommand(cmd.Cmd):
     """Custom Console"""
 
     prompt = "(hbnb) "
-    valid_classes = ["BaseModel", "User"]
+    valid_classes = [
+        "BaseModel",
+        "State",
+        "City",
+        "Amenity",
+        "Place",
+        "Review"
+    ]
 
     def do_quit(self, line):
         """Quit command to exit the program"""
@@ -21,18 +26,15 @@ class HBNBCommand(cmd.Cmd):
         return True
 
     def do_create(self, arg):
-        """Create command to create a new instance of a class"""
+        """Create command to create a new instance of BaseModel"""
         if not arg:
             print("** class name missing **")
             return
-
-        arg = arg.split()
-        class_name = arg[0]
-        if class_name not in self.valid_classes:
+        elif arg not in self.valid_classes:
             print("** class doesn't exist **")
             return
 
-        new_instance = globals()[class_name]()
+        new_instance = models.classes[arg]()
         new_instance.save()
         print(new_instance.id)
 
@@ -50,7 +52,7 @@ class HBNBCommand(cmd.Cmd):
             return
 
         key = args[0] + "." + args[1]
-        objects = storage.all()
+        objects = models.storage.all()
         if key not in objects:
             print("** no instance found **")
         else:
@@ -70,16 +72,16 @@ class HBNBCommand(cmd.Cmd):
             return
 
         key = args[0] + "." + args[1]
-        objects = storage.all()
+        objects = models.storage.all()
         if key not in objects:
             print("** no instance found **")
         else:
             del objects[key]
-            storage.save()
+            models.storage.save()
 
     def do_all(self, arg):
         """All command to print all string representations of instances"""
-        objects = storage.all()
+        objects = models.storage.all()
         if not arg:
             print([str(objects[obj]) for obj in objects])
         elif arg not in self.valid_classes:
@@ -107,12 +109,12 @@ class HBNBCommand(cmd.Cmd):
             return
 
         key = args[0] + "." + args[1]
-        objects = storage.all()
+        objects = models.storage.all()
         if key not in objects:
             print("** no instance found **")
         else:
             setattr(objects[key], args[2], args[3])
-            storage.save()
+            models.storage.save()
 
 
 if __name__ == "__main__":
