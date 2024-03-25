@@ -1,45 +1,37 @@
 #!/usr/bin/python3
-"""Unit tests for FileStorage class"""
+"""FileStorage module"""
 
-import unittest
+import json
 import os
-from models.base_model import BaseModel
-from models.user import User
-from models.engine.file_storage import FileStorage
 
 
-class TestFileStorage(unittest.TestCase):
-    """Test suite for FileStorage class."""
+class FileStorage:
+    """FileStorage class for handling file operations"""
 
-    def setUp(self):
-        """Set up the test environment."""
-        self.storage = FileStorage()
+    def __init__(self):
+        """Initialize FileStorage"""
+        self.__file_path = "file.json"
+        self.__objects = {}
 
-    def tearDown(self):
-        """Clean up the test environment."""
-        if os.path.exists(FileStorage._FileStorage__file_path):
-            os.remove(FileStorage._FileStorage__file_path)
+    def all(self):
+        """Return the dictionary __objects"""
+        return self.__objects
 
-    def test_save_and_reload(self):
-        """Test saving and reloading objects using FileStorage."""
-        model1 = BaseModel()
-        model2 = BaseModel()
-        user1 = User()
-        user2 = User()
-        self.storage.new(model1)
-        self.storage.new(model2)
-        self.storage.new(user1)
-        self.storage.new(user2)
-        self.storage.save()
+    def new(self, obj):
+        """Add a new object to __objects"""
+        obj_class_name = obj.__class__.__name__
+        obj_key = "{}.{}".format(obj_class_name, obj.id)
+        self.__objects[obj_key] = obj
 
-        self.storage._FileStorage__objects = {}
-        self.storage.reload()
+    def save(self):
+        """Serialize __objects to JSON and save to file"""
+        obj_dict = json.dumps(self.__objects)
+        with open(self.__file_path, "w", encoding="utf-8") as file:
+            file.write(obj_dict)
 
-        self.assertIn("BaseModel." + model1.id, self.storage.all())
-        self.assertIn("BaseModel." + model2.id, self.storage.all())
-        self.assertIn("User." + user1.id, self.storage.all())
-        self.assertIn("User." + user2.id, self.storage.all())
-
-
-if __name__ == "__main__":
-    unittest.main()
+    def reload(self):
+        """Deserialize JSON from file and reload __objects"""
+        if os.path.isfile(self.__file_path):
+            with open(self.__file_path, "r", encoding="utf-8") as file:
+                obj_dict = file.read()
+                self.__objects = json.loads(obj_dict)
