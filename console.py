@@ -1,6 +1,5 @@
 #!/usr/bin/python3
 """Console module."""
-
 import cmd
 from models.base_model import BaseModel
 from models import storage
@@ -10,7 +9,6 @@ from models.place import Place
 from models.state import State
 from models.amenity import Amenity
 from models.review import Review
-
 
 class HBNBCommand(cmd.Cmd):
     """Command interpreter class."""
@@ -84,17 +82,15 @@ class HBNBCommand(cmd.Cmd):
         """Print all string representation of all instances."""
         try:
             if not arg:
-                print("** class name missing **")
-                return
-
-            class_name = arg.split()[0]
-            if class_name not in globals():
-                print("** class doesn't exist **")
-                return
-
-            all_instances = storage.all()[class_name].values()
+                all_instances = [str(obj) for obj in storage.all().values()]
+            else:
+                class_name = arg.split()[0]
+                if class_name not in globals():
+                    print('** class doesn\'t exist **')
+                    return
+                all_instances = [str(obj) for key, obj in storage.all().items()
+                                 if key.split('.')[0] == class_name]
             print(all_instances)
-
         except Exception as e:
             print(e)
 
