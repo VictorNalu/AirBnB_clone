@@ -1,48 +1,126 @@
 #!/usr/bin/python3
-"""Unittests"""
-import unittest
+"""Module for BaseModel test suite"""
+
 from models.base_model import BaseModel
+import os
+import unittest
 from datetime import datetime
 
 
 class TestBaseModel(unittest.TestCase):
-    """Test cases for the BaseModel class."""
+    """The class to test BaseModel"""
 
-    def test_attributes_initialization(self):
-        """Test attributes initialization."""
-        obj = BaseModel()
-        self.assertTrue(hasattr(obj, 'id'))
-        self.assertTrue(hasattr(obj, 'created_at'))
-        self.assertTrue(hasattr(obj, 'updated_at'))
-        self.assertIsInstance(obj.id, str)
-        self.assertIsInstance(obj.created_at, datetime)
-        self.assertIsInstance(obj.updated_at, datetime)
+    def setUp(self):
+        """Creates instances to test BaseModel"""
+        self.base_1 = BaseModel()
+        self.base_2 = BaseModel()
+
+    def test_BaseModel_instance(self):
+        """Tests for BaseModel objects"""
+        self.assertIsInstance(self.base_1, BaseModel)
+
+    def test_BaseModel_attributes(self):
+        """Tests for BaseModel attributes"""
+        self.assertTrue(hasattr(self.base_1, "created_at"))
+        self.assertTrue(hasattr(self.base_1, "updated_at"))
+        self.assertTrue(hasattr(self.base_1, "id"))
+
+    def test_custom_attributes(self):
+        """Tests BaseModel with custom attributes"""
+        self.base_1.number = 38000000000
+        self.base_1.money = "Thirty Eight Billion Dollars"
+        self.assertCountEqual(self.base_1.money, "Thirty Eight Billion Dollars")
+        self.assertEqual(self.base_1.number, 38000000000)
+
+    def test_attribute_types(self):
+        """Tests the class types of BaseModel attributes"""
+        self.assertIsInstance(self.base_1.id, str)
+        self.assertIsInstance(self.base_1.created_at, datetime)
+        self.assertIsInstance(self.base_1.updated_at, datetime)
+
+    def test_unique_id(self):
+        """Tests if IDs are unique"""
+        self.assertNotEqual(self.base_1.id, self.base_2.id)
+
+    def test_str_visualization(self):
+        """Tests if __str__() correctly visualizes BaseModel"""
+        view = f"[BaseModel] ({self.base_1.id}) {self.base_1.__dict__}"
+        self.assertEqual(view, str(self.base_1))
 
     def test_save_method(self):
-        """Test save method."""
-        obj = BaseModel()
-        old_updated_at = obj.updated_at
-        obj.save()
-        self.assertNotEqual(old_updated_at, obj.updated_at)
+        """Tests if save() updates updated_at"""
+        base_3 = BaseModel()
+        base_3.save()
+        self.assertNotEqual(self.base_1.updated_at, base_3.updated_at)
 
     def test_to_dict_method(self):
-        """Test to_dict method."""
-        obj = BaseModel()
-        obj_dict = obj.to_dict()
-        self.assertIsInstance(obj_dict, dict)
-        self.assertIn('__class__', obj_dict)
-        self.assertIn('id', obj_dict)
-        self.assertIn('created_at', obj_dict)
-        self.assertIn('updated_at', obj_dict)
+        """Tests the to_dict method is as expected"""
 
-    def test_str_method(self):
-        """Test __str__ method."""
-        obj = BaseModel()
-        string = obj.__str__()
-        self.assertIsInstance(string, str)
-        expected_string = "[BaseModel] ({}) {}".format(obj.id, obj.__dict__)
-        self.assertEqual(string, expected_string)
+        # Check if all existing keys are passed accordingly
+        dict_instance = self.base_1.__dict__
+        for key in dict_instance:
+            self.assertIn(key, self.base_1.to_dict())
+
+        # Check if __class__ is added and assigned accordingly
+        new_dict = self.base_1.to_dict()
+        self.assertEqual(new_dict["__class__"], self.base_1.__class__.__name__)
+
+        # Check if datetime objects were converted to strings
+        self.assertIsInstance(new_dict["created_at"], str)
+        self.assertIsInstance(new_dict["updated_at"], str)
+
+    def test_keyworded_args_not_empty(self):
+        """Tests for when **kwargs is not empty"""
+        test_dict = self.base_1.to_dict()
+        base_4 = BaseModel(**test_dict)
+        self.assertEqual(test_dict, base_4.to_dict())
+
+    def test_empty_keyworded_args(self):
+        """Tests if an empty dict is passed to kwargs"""
+        empty_dict = {}
+        base_5 = BaseModel(**empty_dict)
+        self.assertIn("id", base_5.__dict__)
+        self.assertIn("created_at", base_5.__dict__)
+        self.assertIn("updated_at", base_5.__dict__)
+
+    # ADDITIONAL TEST CASES
+    def test_custom_attributes_to_dict(self):
+        """Tests to_dict method with custom attributes"""
+
+        # Add custom attributes
+        self.base_1.number = 38000000000
+        self.base_1.money = "Thirty Eight Billion Dollars"
+
+        # Check if custom attributes are included in to_dict()
+        base_dict = self.base_1.to_dict()
+        self.assertIn("number", base_dict)
+        self.assertIn("money", base_dict)
+        self.assertEqual(base_dict["number"], 38000000000)
+        self.assertEqual(base_dict["money"], "Thirty Eight Billion Dollars")
+
+    def test_save_method_with_to_dict(self):
+        """Tests if save() updates updated_at with object created from to_dict()"""
+
+        # Create an object from to_dict()
+        base_from_dict = BaseModel(**self.base_1.to_dict())
+
+        # Save the object and check if updated_at is updated
+        base_from_dict.save()
+        self.assertNotEqual(self.base_1.updated_at, base_from_dict.updated_at)
+
+    def test_datetime_conversion(self):
+        """Tests converting created_at and updated_at back to datetime objects"""
+
+        # Convert created_at and updated_at from string to datetime
+        base_dict = self.base_1.to_dict()
+
+        # Create an object from the modified dictionary
+        base_from_dict = BaseModel(**base_dict)
+
+        # Check if created_at and updated_at are datetime objects
+        self.assertIsInstance(base_from_dict.created_at, datetime)
+        self.assertIsInstance(base_from_dict.updated_at, datetime)
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     unittest.main()
