@@ -1,37 +1,72 @@
 #!/usr/bin/python3
 """FileStorage module"""
-
-import json
+import unittest
 import os
+import json
+from models.file_storage import FileStorage
+from models.base_model import BaseModel
 
 
-class FileStorage:
-    """FileStorage class for handling file operations"""
+class TestFileStorage(unittest.TestCase):
+    """Test cases for the FileStorage class."""
 
-    def __init__(self):
-        """Initialize FileStorage"""
-        self.__file_path = "file.json"
-        self.__objects = {}
+    def setUp(self):
+        """Set up method to reset FileStorage class attributes."""
+        FileStorage._FileStorage__objects = {}
+        try:
+            os.remove("file.json")
+        except FileNotFoundError:
+            pass
 
-    def all(self):
-        """Return the dictionary __objects"""
-        return self.__objects
+    def tearDown(self):
+        """Tear down method to remove created files after tests."""
+        try:
+            os.remove("file.json")
+        except FileNotFoundError:
+            pass
 
-    def new(self, obj):
-        """Add a new object to __objects"""
-        obj_class_name = obj.__class__.__name__
-        obj_key = "{}.{}".format(obj_class_name, obj.id)
-        self.__objects[obj_key] = obj
+    def test_all(self):
+        """Test all method."""
+        obj = BaseModel()
+        fs = FileStorage()
+        fs.new(obj)
+        self.assertEqual(
+            fs.all(),
+            {"BaseModel.{}".format(obj.id): obj}
+        )
 
-    def save(self):
-        """Serialize __objects to JSON and save to file"""
-        obj_dict = json.dumps(self.__objects)
-        with open(self.__file_path, "w", encoding="utf-8") as file:
-            file.write(obj_dict)
+    def test_new(self):
+        """Test new method."""
+        obj = BaseModel()
+        fs = FileStorage()
+        fs.new(obj)
+        self.assertEqual(
+            fs.all(),
+            {"BaseModel.{}".format(obj.id): obj}
+        )
 
-    def reload(self):
-        """Deserialize JSON from file and reload __objects"""
-        if os.path.isfile(self.__file_path):
-            with open(self.__file_path, "r", encoding="utf-8") as file:
-                obj_dict = file.read()
-                self.__objects = json.loads(obj_dict)
+    def test_save_reload(self):
+        """Test save and reload methods."""
+        obj = BaseModel()
+        fs = FileStorage()
+        fs.new(obj)
+        fs.save()
+        fs2 = FileStorage()
+        fs2.reload()
+        self.assertEqual(
+            fs2.all(),
+            fs.all()
+        )
+
+    def test_reload_no_file(self):
+        """Test reload method when file doesn't exist."""
+        fs = FileStorage()
+        fs.reload()
+        self.assertEqual(
+            fs.all(),
+            {}
+        )
+
+
+if __name__ == '__main__':
+    unittest.main()
