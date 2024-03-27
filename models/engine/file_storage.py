@@ -1,37 +1,45 @@
 #!/usr/bin/python3
 """fileStorage """
 import json
-import os
+from models.base_model import BaseModel
+from models.user import User
 
 
 class FileStorage:
     """FileStorage class"""
 
-    def __init__(self):
-        """Constructor"""
-        self.__file_path = "file.json"
-        self.__objects = {}
+    
+        
+    __file_path = "file.json"
+    __objects = {}
 
     def all(self):
         """all method"""
-        return self.__objects
+        return (FileStorage.__objects)
 
     def new(self, obj):
         """new"""
         obj_class_name = obj.__class__.__name__
         obj_key = "{}.{}".format(obj_class_name, obj.id)
-        self.__objects[obj_key] = obj.to_dict()
+        FileStorage.__objects[obj_key] = obj
 
     def save(self):
         """save"""
-        obj_dict = json.dumps(self.__objects)
-        with open(self.__file_path, "w", encoding="utf-8") as file:
-            file.write(obj_dict)
+        objects_copy = FileStorage.__objects
+        objects_dict = {
+            obj: objects_copy[obj].to_dict() for obj in objects_copy.keys()
+        }
+        with open(FileStorage.__file_path, "w") as f:
+            json.dump(objects_dict, f)
 
     def reload(self):
         """reload"""
-        if os.path.isfile(self.__file_path):
-            with open(self.__file_path, "r", encoding="utf-8") as file:
-                obj_dict = file.read()
-
-                self.__objects = json.loads(obj_dict)
+        try:
+            with open(FileStorage.__file_path, "r") as f:
+                objects_dict = json.load(f)
+                for obj in objects_dict.values():
+                    class_name = obj["__class__"]
+                    del obj["__class__"]
+                    self.new(eval(class_name)(**obj))
+        except FileNotFoundError:
+            return
