@@ -10,9 +10,6 @@ class BaseModel:
 
     def __init__(self, *args, **kwargs):
         """Initialization method"""
-        self.id = str(uuid.uuid4())
-        self.created_at = datetime.now()
-        self.updated_at = datetime.now()
         if len(kwargs):
             iso_format = "%Y-%m-%dT%H:%M:%S.%f"
             for key, value in kwargs.items():
@@ -21,7 +18,15 @@ class BaseModel:
                 else:
                     self.__dict__[key] = value
         else:
+            self.id = str(uuid.uuid4())
+            self.created_at = datetime.now()
+            self.updated_at = datetime.now()
             models.storage.new(self)
+
+    def __str__(self):
+        """String representation method"""
+        class_name = self.__class__.__name__
+        return "[{}] ({}) {}".format(class_name, self.id, self.__dict__)
 
     def save(self):
         """Updates the public instance"""
@@ -35,9 +40,4 @@ class BaseModel:
         obj_dict["updated_at"] = self.updated_at.isoformat()
         obj_dict["__class__"] = self.__class__.__name__
 
-        return (obj_dict)
-
-    def __str__(self):
-        """String representation method"""
-        class_name = self.__class__.__name__
-        return "[{}] ({}) {}".format(class_name, self.id, self.__dict__)
+        return obj_dict
