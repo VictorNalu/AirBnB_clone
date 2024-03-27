@@ -100,7 +100,7 @@ class TestBaseModel(unittest.TestCase):
         self.assertEqual(base_dict['money'], 'Thirty Eight Billion Dollars')
 
     def test_save_method_with_to_dict(self):
-        """Tests if save() updates updated"""
+        """Tests if save() updates update"""
 
         # Create an object from to_dict()
         base_from_dict = BaseModel(**self.base_1.to_dict())
