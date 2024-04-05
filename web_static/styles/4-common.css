@@ -1,0 +1,33 @@
+body {
+    margin: 0;
+    padding: 0;
+}
+
+.container {
+    max-width: 1000px;
+    margin: 30px auto;
+}
+
+header,
+footer {
+    width: 100%;
+}
+
+header {
+    border-bottom: 1px solid #CCCCCC;
+}
+
+footer {
+    border-top: 1px solid #CCCCCC;
+    position: fixed;
+    bottom: 0;
+    background-color: #484848;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+footer span {
+    color: black;
+    font-weight: bold;
+}
